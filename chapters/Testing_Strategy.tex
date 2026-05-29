@@ -1,0 +1,64 @@
+\chapter{Testing Strategy}
+RedSentinel employs a multi-layer testing strategy following the test pyramid principle. Given the polyglot architecture (TypeScript + Python), each component/module maintains its own test suite using idiomatic frameworks.
+\section{NestJS Core Testing}
+\subsection{Unit Tests (66 tests)}
+The NestJS test suite uses Jest with @nestjs/testing utilities. Unit tests mock external dependencies (PostgreSQL, Redis, Python services) using Jest's jest.mock() and NestJS testing module providers. Key test files cover:
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|p{4cm}|p{2cm}|p{7cm}|}
+      \hline
+        Test File & Tests  &Coverage Area\\ \hline
+        scan.service.spec.ts &18  & Scan CRUD, status transitions, pagination, cancellation logic\\ \hline
+         scan.controller.spec.ts&12  &RHTTP request validation, response shaping, auth guard integration\\ \hline
+        scan.gateway.spec.ts&8  & WebSocket event emission, room management, client subscription\\ \hline
+         queue.processor.spec.ts & 14&Pipeline phase orchestration, error handling, event emission\\ \hline 
+         report.service.spec.ts & 8 & Report generation, file writing, format selection \\ \hline
+         modules-bridge.spec.ts & 4 &HTTP client behavior, timeout handling, error propagation \\ \hline
+         
+    \end{tabular}
+    \caption{NestJS Unit Test Coverage by File}
+    
+\end{table}
+\subsection{Integration and E2E Tests (31 tests)}
+Integration tests use a test PostgreSQL database (spawned via testcontainers) and a mock Redis instance to verify database interactions and job queue behavior. E2E tests use NestJS's supertest integration to send HTTP requests to a fully configured application instance and verify responses. Key integration test scenarios:
+\begin{itemize}
+    \item Complete scan lifecycle from POST /scan through to COMPLETED status.
+    \item WebSocket event delivery for all four event types.
+    \item Report generation producing valid HTML and PDF output.
+    \item  API key authentication enforcement on all protected endpoints.
+    \item Scan cancellation removing the BullMQ job and updating scan status.
+    \item Paginated scan listing with correct total count and page navigation.
+\end{itemize}
+\section{ Python Module Testing}
+\subsection{Context Module Tests (test\textunderscore context.py)}
+Tests cover the reflection analysis logic, model loading, and classification API. The DistilBERT model is mocked with a lightweight stub returning deterministic outputs to avoid GPU dependency in CI. Tests verify that reflection probes are correctly assembled, that the API correctly handles edge cases (empty HTML, no reflection, model confidence below threshold), and that the Pydantic schemas validate correctly
+\subsection{ Payload-Gen Module Tests (test\textunderscore payload\textunderscore gen.py)}
+Tests cover dataset loading, selection algorithm filtering, each of the eight mutation strategies, andthe ranker integration. The dataset is replaced with a small fixture dataset of 50 payloads covering all eight context classes. Tests verify that context filtering works correctly, that WAF mode changes payload selection behavior, and that mutations produce syntactically valid payloads (verified by attempting HTML parsing of mutated payloads).
+\subsection{Fuzzer Module Tests (test\textunderscore fuzzer.py)}
+Tests use httpx's mock transport to simulate HTTP responses without real network requests. Playwright is mocked at the module boundary to avoid requiring a browser in the test environment. Tests verify reflection detection accuracy, browser verification triggering conditions, DOM sink analysis pattern matching, and training data serialization format.
+
+\section{Integration Tests (test\textunderscore integration.py, 6 tests)}
+Six cross-module integration tests verify the complete data contract between the three Python modules:
+\begin{enumerate}[itemsep=2pt, topsep=-15pt]
+    \item  Context module output is valid input to Payload Generation module (schema compatibility).
+    \item Payload Generation Generation module output is valid input to Fuzzer module.
+    \item All modules respond to /health with correct JSON structure.
+    \item Context module correctly classifies a known HTML\_\allowbreak \allowbreak BODY injection from test fixture.
+    \item Payload Generation module returns at least 1 payload for each context class given a clean context input.
+    \item  Fuzzer module correctly identifies reflection in a mock HTTP response.
+
+\end{enumerate}
+\section{End-to-End Smoke Test}
+The e2e-smoke.sh script performs a complete scan of a local vulnerable target application (DVWA or equivalent), verifying that:
+\begin{itemize}[itemsep=2pt, topsep=-15pt]
+    \item The complete Docker Compose stack starts and all health checks pass.
+    \item POST /scan returns a valid scan ID.
+    \item WebSocket events are received for each scan phase.
+    \item At least one XSS vulnerability is discovered and reported.
+    \item The scan reaches COMPLETED status within the timeout.
+    \item The report endpoint returns a valid report URL.
+\end{itemize}
+\section{Coverage Reporting}
+JavaScript coverage is collected using Jest's --coverage flag with V8 as the coverage provider. The coverage.sh script collects Python coverage using pytest-cov. Coverage reports are generated in HTML and LCOV formats for CI integration. The .coveragerc file configures Python coverage exclusions (test files, \_\allowbreak \allowbreak \_\allowbreak \allowbreak init\_\allowbreak \allowbreak \_\allowbreak \allowbreak .py, model training scripts that require GPU).
+

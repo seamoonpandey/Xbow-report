@@ -1,0 +1,383 @@
+%% ============================================================
+%% ioe_report.sty
+%% LaTeX Style for Final Year Project Reports
+%% Institute of Engineering (IOE), Tribhuvan University, Nepal
+%% ============================================================
+%% Usage: \usepackage{ioe_report} in your main .tex file
+%% ============================================================
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{ioe_report}[2024/01/01 IOE TU Final Report Style]
+
+%% ============================================================
+%% 1. REQUIRED PACKAGES
+%% ============================================================
+
+\RequirePackage[T1]{fontenc}
+\RequirePackage[utf8]{inputenc}
+
+%% Page geometry — A4, all margins 1 inch (IOE standard)
+\RequirePackage[
+ a4paper,
+ left=3.5cm,
+ right=2.0cm,
+ top=3.0cm,
+ bottom=2.5cm,
+ headheight=14pt,
+  headsep=0.5in,
+  footskip=0.5in
+]{geometry}
+
+%% Font: Times New Roman equivalent
+\RequirePackage{mathptmx}          % Times for text + math
+\RequirePackage{times}
+
+%% Line spacing
+\RequirePackage{setspace}
+
+%% Header / Footer
+\RequirePackage{fancyhdr}
+
+%% Chapter/Section title formatting
+\RequirePackage{titlesec}
+
+%% Table of contents formatting
+\RequirePackage{tocloft}
+
+%% Caption formatting
+\RequirePackage{caption}
+
+%% Graphics
+\RequirePackage{graphicx}
+
+%% Colors
+\RequirePackage{xcolor}
+\RequirePackage[
+  hidelinks,
+  bookmarks=true,
+  bookmarksopen=true,
+  pdfdisplaydoctitle=true
+]{hyperref}
+
+%% Miscellaneous
+\RequirePackage{amsmath, amssymb}
+\RequirePackage{booktabs}
+\RequirePackage{array}
+\RequirePackage{tabularx}
+\RequirePackage{longtable}
+\RequirePackage{multirow}
+\RequirePackage{enumitem}
+\RequirePackage{cite}             % Numeric citations [1], [2,3]
+\RequirePackage{notoccite}
+\RequirePackage{url}
+\RequirePackage{microtype}        % Better justification
+\RequirePackage{indentfirst}      % Indent first paragraph after heading
+\RequirePackage{parskip}          % Space between paragraphs (set below)
+
+%% ============================================================
+%% 2. FONT SIZE  (12pt base — IOE standard)
+%%    Set \documentclass[12pt]{report} in your main file.
+%% ============================================================
+
+%% Body font size enforced by document class 12pt.
+%% We re-assert key sizes for headings below.
+
+%% ============================================================
+%% 3. LINE SPACING  (1.5 line spacing — IOE standard)
+%% ============================================================
+
+\onehalfspacing                   % 1.5× line spacing throughout
+
+%% Paragraph indent and spacing
+\setlength{\parindent}{0in}     % First-line indent 0.5 in
+\setlength{\parskip}{18pt}         % No extra space between paragraphs
+
+%% ============================================================
+%% 4. PAGE HEADERS AND FOOTERS
+%% ============================================================
+
+\pagestyle{fancy}
+\fancyhf{}                         % Clear all
+
+%% Running head: chapter title (right-aligned on odd pages)
+\fancyhead[R]{\small\itshape\nouppercase{\rightmark}}
+\fancyhead[L]{\small\itshape\nouppercase{\leftmark}}
+
+%% Page number centred in footer
+\fancyfoot[C]{\thepage}
+
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+
+%% Plain style (chapter opening pages): only page number
+\fancypagestyle{plain}{
+  \fancyhf{}
+  \fancyfoot[C]{\thepage}
+  \renewcommand{\headrulewidth}{0pt}
+}
+
+%% ============================================================
+%% 5. PAGE NUMBERING HELPERS
+%% ============================================================
+
+%% Use \frontmatter, \mainmatter, \backmatter in report class
+%% These are already built into `report` class.
+%%
+%% Preliminary pages  → lowercase Roman  (i, ii, iii …)
+%% Main body          → Arabic           (1, 2, 3 …)
+%%
+%% Call in your main .tex file:
+%%   \pagenumbering{roman}    before abstract/ToC
+%%   \pagenumbering{arabic}   before Chapter 1
+%% ============================================================
+%% 6. CHAPTER AND SECTION HEADINGS
+%% ============================================================
+ 
+%% --- CHAPTER ---
+%% IOE: "CHAPTER 1" on first line, title on second line
+%% Both centred, bold, 14 pt (ALL CAPS for "CHAPTER N")
+
+\titleformat{\chapter}[display]
+  {\centering\fontsize{16pt}{16pt}\bfseries }
+  {\MakeUppercase{\chaptertitlename \ \thechapter}}
+  {-12pt}
+  {\MakeUppercase}
+\titlespacing*{\chapter}{0pt}{-6pt}{-6pt}
+
+% Chapter* formatting (for unnumbered chapters)
+\titleformat{name=\chapter,numberless}
+   {\centering\fontsize{14pt}{14pt}\bfseries}{}{0em}{}[\vspace{-\parskip}]
+\titlespacing*{name=\chapter,numberless}{0pt}{0pt}{12pt}
+
+
+%% --- SECTION ---
+%% Bold, 12 pt, left-aligned, Title Case
+\titleformat{\section}
+  { \normalfont\bfseries\fontsize{13}{13}\selectfont}
+  {\thesection}
+  {1em}
+  {}
+\titlespacing*{\section}{0pt}{6pt}{6pt}
+ 
+%% --- SUBSECTION ---
+%% Bold, 12 pt, left-aligned
+\titleformat{\subsection}
+  {\normalfont\bfseries\fontsize{12}{12}\selectfont}
+  {\thesubsection}
+  {1em}
+  {}
+\titlespacing*{\subsection}{0pt}{12pt}{4pt}
+ 
+%% --- SUBSUBSECTION ---
+%% Bold italic, 12 pt
+\titleformat{\subsubsection}
+  {\normalfont\bfseries\fontsize{12}{12}\selectfont}
+  {\thesubsubsection}
+  {1em}
+  {}
+\titlespacing*{\subsubsection}{0pt}{10pt}{2pt}
+
+%% ============================================================
+%% 7. TABLE OF CONTENTS / LIST OF FIGURES / LIST OF TABLES
+%% ============================================================
+
+%% TOC title styling
+\renewcommand{\contentsname}{TABLE OF CONTENTS}
+\renewcommand{\listfigurename}{LIST OF FIGURES}
+\renewcommand{\listtablename}{LIST OF TABLES}
+
+%% TOC entries
+\renewcommand{\cfttoctitlefont}{\hfill\bfseries\fontsize{14}{16}\selectfont\MakeUppercase}
+\renewcommand{\cftaftertoctitle}{\hfill}
+\renewcommand{\cftloftitlefont}{\hfill\bfseries\fontsize{14}{16}\selectfont}
+\renewcommand{\cftafterloftitle}{\hfill}
+\renewcommand{\cftlottitlefont}{\hfill\bfseries\fontsize{14}{16}\selectfont}
+\renewcommand{\cftafterlottitle}{\hfill}
+
+%% Dot leaders for all levels
+\renewcommand{\cftchapdotsep}{\cftdotsep}
+\renewcommand{\cftsecdotsep}{\cftdotsep}
+\renewcommand{\cftsubsecdotsep}{\cftdotsep}
+
+%% Chapter entries in TOC: bold
+\renewcommand{\cftchapfont}{\bfseries}
+\renewcommand{\cftchappagefont}{\bfseries}
+
+%% Indents
+\setlength{\cftchapindent}{0pt}
+\setlength{\cftsecindent}{1.5em}
+\setlength{\cftsubsecindent}{3.0em}
+
+%% ============================================================
+%% 8. FIGURE AND TABLE CAPTIONS
+%% ============================================================
+
+\captionsetup{
+  font=small,              % 10 pt captions
+  labelfont=bf,            % Bold "Figure 1.1:" label
+  labelsep=colon,
+  justification=centering,
+  singlelinecheck=false,
+  textfont=it              % Caption text in italics (optional, remove if preferred)
+}
+
+%% Caption numbering: Chapter.Number  (e.g. Figure 2.3)
+\renewcommand{\thefigure}{\thechapter.\arabic{figure}}
+\renewcommand{\thetable}{\thechapter.\arabic{table}}
+\renewcommand{\theequation}{\thechapter.\arabic{equation}}
+
+%% ============================================================
+%% 9. LISTS (itemize / enumerate)
+%% ============================================================
+
+\setlist{
+  topsep=4pt,
+  itemsep=2pt,
+  parsep=0pt,
+  leftmargin=*
+}
+
+%% ============================================================
+%% 10. BIBLIOGRAPHY / REFERENCES
+%% ============================================================
+
+%% IOE uses numbered references in order of citation.
+%% Recommended: \bibliographystyle{IEEEtran}  or  {unsrt}
+%% Add in your main .tex:
+%%   \bibliographystyle{IEEEtran}
+%%   \bibliography{references}
+
+%% Section title for bibliography
+\renewcommand{\bibname}{REFERENCES}
+
+%% ============================================================
+%% 11. TITLE PAGE HELPERS
+%% ============================================================
+
+%% Store metadata
+\newcommand{\reporttitle}[1]{\def\@reporttitle{#1}}
+\newcommand{\reportauthor}[1]{\def\@reportauthor{#1}}
+\newcommand{\rollnumber}[1]{\def\@rollnumber{#1}}
+\newcommand{\department}[1]{\def\@department{#1}}
+\newcommand{\institution}[1]{\def\@institution{#1}}
+\newcommand{\submissiondate}[1]{\def\@submissiondate{#1}}
+\newcommand{\supervisor}[1]{\def\@supervisor{#1}}
+\newcommand{\cosupervisor}[1]{\def\@cosupervisor{#1}}
+\newcommand{\examyear}[1]{\def\@examyear{#1}}
+
+%% Defaults
+\def\@reporttitle{Project Title}
+\def\@reportauthor{Author Name}
+\def\@rollnumber{000-000-000}
+\def\@department{Department of Electronics and Computer Engineering}
+\def\@institution{Tribhuvan University\\ Institute of Engineering\\ Pulchowk Campus}
+\def\@submissiondate{\the\year}
+\def\@supervisor{Supervisor Name}
+\def\@cosupervisor{}
+\def\@examyear{\the\year}
+
+%% \maketitlepage — generates the standard IOE cover page
+\newcommand{\maketitlepage}{%
+  \begin{titlepage}
+    \centering
+    \vspace*{0.5cm}
+
+    %% University logo — place ioe_logo.png in your project folder
+    \IfFileExists{ioe_logo.png}{%
+      \includegraphics[width=3cm]{ioe_logo.png}\\[0.5cm]
+    }{%
+      \textbf{[Place IOE Logo Here]}\\[0.5cm]
+    }
+
+    {\bfseries\fontsize{14}{17}\selectfont \@institution \par}
+    \vspace{0.4cm}
+    {\bfseries\fontsize{12}{15}\selectfont \@department \par}
+
+    \vfill
+
+    {\bfseries\fontsize{16}{20}\selectfont\MakeUppercase{\@reporttitle} \par}
+
+    \vspace{0.5cm}
+    {\normalsize A Project Report\\[2pt]
+    Submitted in partial fulfillment of the requirements for the\\
+    Bachelor's Degree in \@department}
+
+    \vfill
+
+    {\normalsize\bfseries Submitted by:}\\[4pt]
+    {\normalsize \@reportauthor}\\
+    {\normalsize Roll No.: \@rollnumber}
+
+    \vspace{0.5cm}
+
+    {\normalsize\bfseries Supervised by:}\\[4pt]
+    {\normalsize \@supervisor}
+    \ifx\@cosupervisor\empty\else
+      \\[2pt]{\normalsize Co-supervised by: \@cosupervisor}
+    \fi
+
+    \vfill
+
+    {\normalsize \@submissiondate}
+
+  \end{titlepage}
+  \clearpage
+}
+
+%% ============================================================
+%% 12. ABSTRACT ENVIRONMENT
+%% ============================================================
+
+
+
+%% ============================================================
+%% 13. ACKNOWLEDGEMENTS ENVIRONMENT
+%% ============================================================
+
+\newenvironment{acknowledgements}{%
+  \chapter*{ACKNOWLEDGEMENTS}
+  \addcontentsline{toc}{chapter}{Acknowledgements}
+}{%
+  \clearpage
+}
+
+%% ============================================================
+%% 14. ABBREVIATIONS / NOMENCLATURE ENVIRONMENT
+%% ============================================================
+
+\newenvironment{abbreviations}{%
+  \chapter*{LIST OF ABBREVIATIONS}
+  \addcontentsline{toc}{chapter}{List of Abbreviations}
+  \begin{tabular}{@{}ll}
+}{%
+  \end{tabular}
+  \clearpage
+}
+
+%% ============================================================
+%% 15. APPENDIX FORMATTING
+%% ============================================================
+
+%% Use standard \appendix command; chapters become Appendix A, B, …
+\newcommand{\startappendix}{%
+  \appendix
+  \addcontentsline{toc}{chapter}{Appendices}
+}
+
+%% ============================================================
+%% 16. HYPERREF METADATA SETUP (call in preamble)
+%% ============================================================
+
+\newcommand{\sethyperrefmeta}{%
+  \hypersetup{
+    pdftitle={\@reporttitle},
+    pdfauthor={\@reportauthor},
+    pdfsubject={IOE Final Year Project Report},
+    pdfkeywords={IOE, TU, project report}
+  }
+}
+
+%% ============================================================
+%% END OF STYLE FILE
+%% ============================================================
+\endinput

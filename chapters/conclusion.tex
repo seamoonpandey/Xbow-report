@@ -1,0 +1,10 @@
+\chapter{Conclusion}
+
+The proposed system, RedSentinel, is an AI-powered XSS vulnerability scanner that combines machine learning techniques, intelligent payload generation, and automated security testing to improve the detection of web application vulnerabilities. The system uses a fine-tuned DistilBERT model, payload mutation strategies, and headless browser verification to effectively identify reflected XSS vulnerabilities while overcoming many limitations of traditional static-payload scanners.
+
+The system follows a polyglot microservice architecture consisting of a NestJS coordination core along with specialized Python AI microservices. Different modules are responsible for context classification, payload ranking, mutation, scan orchestration, browser verification, and report generation. The asynchronous job queue pipeline and WebSocket-based real-time updates allow the system to handle scans efficiently while providing continuous feedback to users.
+
+Currently, the system handles automated reflected XSS detection, intelligent payload selection, WAF evasion through obfuscation and mutation techniques, real-time scan monitoring, and multi-format reporting. However, the system does not yet fully support advanced JavaScript-aware crawling, stored XSS detection, or highly resource-optimized distributed scanning.
+
+Tests have been performed by both the development team and automated testing pipelines. The system was evaluated using a labeled payload dataset containing more than 59,122 payload samples along with comprehensive unit, integration, and end-to-end testing. The accuracy and reliability of the system were measured based on successful vulnerability detection, payload classification correctness, and stable execution across different scanning scenarios.
+

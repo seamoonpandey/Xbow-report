@@ -1,0 +1,12 @@
+\chapter*{\MakeUppercase{Abstract}}
+\addcontentsline{toc}{chapter}{Abstract}
+Cross-Site Scripting (XSS) remains a persistent web vulnerability and traditional scanners, dependent on signatures and manually crafted payloads, struggle with modern filtering mechanisms and diverse injection contexts. The system employs a polyglot microservice architecture combining a TypeScript/NestJS orchestration core with three specialized Python-based AI microservices, all coordinated through a distributed job queue backed by Redis and surfaced via a real-time Next.js dashboard.
+
+The core innovation lies in the integration of a fine-tuned DistilBERT transformer model for injection context classification, combined with a 59,122-entry labeled XSS payload dataset and a multistrategy payload mutation and obfuscation engine. This allows RedSentinel to reason about the semantic context of injection points, distinguishing HTML attribute contexts from JavaScript sink contexts, DOM-based sinks from server-reflected contexts, and generate payloads that are specifically crafted to survive filtering within that context.
+
+The scanner performs an end-to-end pipeline consisting of optional target authentication, crawling, context analysis, payload generation, fuzzing, and report generation. Payload generation uses a curated payload bank of approximately 59,122 entries, mutation and obfuscation strategies, and XGBoost ranking when the trained ranker artifact is available, with heuristic fallback otherwise. The fuzzer checks reflection, supports DOM-oriented and stored-XSS paths with limitations, and can use headless browser verification to distinguish executable payloads from plain textual reflection
+
+This report provides a comprehensive technical account of the system's architecture,module design, API contracts, dataset and model artifacts, scan pipeline, evaluation results and testing approach of RedSentinel.
+\vspace{1cm}
+
+\noindent\textbf{Keywords:} Cross-Site Scripting, XSS, Machine Learning, Transformer Models, Adversarial Payload Generation, Web Security, Automated Penetration Testing, Obfuscation, Context-Aware Attack Generation, BullMQ, Uvicorn, Pydantic, Playwright

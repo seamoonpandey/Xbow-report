@@ -1,0 +1,38 @@
+\chapter{Deployment and Infrastructure}
+
+\section{Docker Compose Architecture}
+RedSentinel's production deployment is defined entirely in docker-compose.yml, which specifies seven services with explicit dependency ordering via health checks. This section describes each service's container configuration.
+\subsection{Infrastructure Services}
+Redis (redis:7-alpine) serves as the BullMQ backing store and is the first service started. It requires no persistent volume as job state is ephemeral. A health check using redis-cli ping verifies availability with 5 retries at 10-second intervals. PostgreSQL (postgres:16-alpine) stores all persistent application data. The database is initialized with a custom init.sql script that creates tables with proper constraints, indexes, and extension requirements. Data is persisted to the pgdata named volume. Health check uses pg\_\allowbreak isready.
+\subsection{Python Microservice Containers}
+Each Python service is built from a dedicated Dockerfile within the modules/ directory. Common to all three:
+\begin{itemize}[itemsep=2pt, topsep=-15pt]
+    \item Base image: python:3.11-slim for minimal attack surface.
+    \item Dependencies installed from requirements.txt with no-cache-dir to minimize image size.
+    \item Uvicorn ASGI server as the process runner.
+    \item Non-root user execution for security.
+\end{itemize}
+The Context service additionally mounts the model/ directory as a read-only volume, allowing model updates without container rebuilds. The Payload-Gen service mounts dataset/splits read-only for payload database access. The Fuzzer service mounts the training\_\allowbreak data volume for persistent training data collection.
+\subsection{NestJS Core Container}
+The Core container is built from core/Dockerfile using a multi-stage build: a build stage compiles TypeScript to JavaScript using the NestJS CLI, and a production stage copies only the compiled output and node\_\allowbreak modules. Puppeteer requires Chromium, which is installed via Alpine packages(chromium chromium-chromedriver). The PUPPETEER\_\allowbreak EXECUTABLE\_\allowbreak PATH environment variable points to /usr/bin/chromium-browser to override Puppeteer's default download behavior. The Core depends on all five other services via condition: service\_\allowbreak healthy, ensuring the complete environment is available before scan processing begins. Reports are persisted to the reports named volume and served via a static files endpoint.
+\subsection{ Dashboard Container}
+The dashboard builds as a production Next.js application. NEXT\_\allowbreak PUBLIC\_\allowbreak API\_\allowbreak URL is passed as a Docker build argument to embed the API URL at build time for server-side rendering. The WebSocket URL is derived at runtime from window.location in the browser to support reverse proxy deployments without hardcoded hostnames.
+\section{Development Mode}
+A docker-compose.dev.yml override file modifies the production configuration for development use:
+\begin{itemize}[itemsep=2pt, topsep=-15pt]
+    \item Source code directories are bind-mounted into containers, enabling hot reload.
+    \item NestJS Core runs with npm run start:dev (ts-node-dev with watch mode).
+    \item Python services run with uvicorn --reload.
+    \item Port 9229 is exposed on the Core container for Node.js debugger attachment.
+\end{itemize}
+
+\section{Environment Configuration}
+All sensitive and environment-specific settings are managed via environment variables, documented in .env.example with defaults. In production, use a high-entropy API\_\allowbreak KEY \_\allowbreak SECRET, strong random POSTGRES\_\allowbreak PASSWORD, and restrict CORS\_\allowbreak ORIGIN to the dashboard hostname rather than *. Docker Compose defaults (change-me-before-deploy, rs/rs) are for development only. DEFAULT\_\allowbreak SCAN\_\allowbreak DEPTH and DEFAULT\_\allowbreak MAX \_\allowbreak PAYLOADS should be adjusted based on target size and available compute resources.
+\section{Volume Management}
+Three named Docker volumes manage persistent data:
+\begin{itemize}
+    \item pgdata: PostgreSQL data directory. Stores all scan records, vulnerability data, and report metadata.
+    \item reports: Report output directory. Stores generated HTML and PDF reports. Served by the Core via a static files endpoint.
+    \item training\_\allowbreak data: Fuzzer training data. Stores JSONL files of injection attempt records for model retraining.
+\end{itemize}
+These volumes persist across container restarts and rebuilds. They must be backed up for production deployments. Volume data can be inspected or exported using standard Docker volume commands.
